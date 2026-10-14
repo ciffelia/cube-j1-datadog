@@ -1,0 +1,37 @@
+name: cube-j1-datadog
+services:
+  collector:
+    build: .
+    user: "1000:1000"
+    restart: unless-stopped
+    init: true
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    pids_limit: 64
+    mem_limit: 128m
+    stop_grace_period: 20s
+    command:
+      - --mqtt=${MQTT_BROKER:?Set MQTT_BROKER in .env}
+      - --meter=${METER_UUID:?Set METER_UUID in .env}
+      - --mqtt-username=u
+      - --mqtt-client-id=cube-j1-datadog
+      - --mqtt-password-file=/run/secrets/mqtt_password
+      - --mqtt-cert-sha256=${MQTT_CERT_SHA256:?Set MQTT_CERT_SHA256 in .env}
+      - --dd-site=${DD_SITE:?Set DD_SITE in .env}
+      - --dd-api-key-file=/run/secrets/datadog_api_key
+      - --poll-interval=10s
+    secrets:
+      - mqtt_password
+      - datadog_api_key
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+secrets:
+  mqtt_password:
+    file: ./secrets/mqtt-password
+  datadog_api_key:
+    file: ./secrets/datadog-api-key

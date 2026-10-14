@@ -1,0 +1,4 @@
+/secrets/
+/.env
+/compose.override.yaml
+/cube-j1-datadog
